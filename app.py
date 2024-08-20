@@ -11,7 +11,7 @@ speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb
 speech_secret = '7f66cefcbb5b442d842b2abe9bc67d9b'
 clova_studio_host = 'clovastudio.apigw.ntruss.com'
 clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiYxteJcS/tQtG1yQbbXdxii3loCK33bmD1iAr3WX+ViJz'
-clova_studio_api_key_primary_val = 'b6wvsrbh5Tz7FuRhCwHGuEDS46fPXrEp1KzWOgEh'
+api_key_primary_val = 'oOomQk0zHJQC3e2w56KZCDhv4EyQQrQAx0Q0YokN'
 request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
 
 app = Flask(__name__)
@@ -143,17 +143,26 @@ def index():
         summary_similarity_scores = calculate_semantic_similarity(summary, long_summaries)
 
         if speech_similarity_scores.max().item() >= 0.8 or summary_similarity_scores.max().item() >= 0.8:
+            matching_phone_number = False
             for correct_doc in correct_collection.find():
                 keywords = correct_doc['keyword']  # keyword가 배열 형태라고 가정
                 correct_phone_list = correct_doc['phoneNumber']
                 for keyword in keywords:  # 배열 내의 각 키워드를 순차적으로 검사
                     if keyword in transcript or keyword in summary:
-                        if phone_number not in correct_phone_list:
-                            warning_message = "!보이스 피싱 의심!"
-                            
-                            if transcript and summary:
-                                collection.insert_one({'speech': transcript, 'summary': summary, 'phone_number': phone_number})
+                        if phone_number in correct_phone_list:
+                            matching_phone_number = True
+                            warning_message = "보이스 피싱이 의심되는 전화입니다"
                             break
+                        else:
+                            warning_message = "보이스 피싱일 확률이 높습니다!"
+                            break
+
+            # 데이터 저장
+            if transcript and summary:
+                collection.insert_one({'speech': transcript, 'summary': summary, 'phone_number': phone_number})
+
+            if not matching_phone_number:
+                warning_message = "보이스 피싱일 확률이 높습니다!"
 
     uploaded_files = os.listdir(UPLOAD_FOLDER)
 
