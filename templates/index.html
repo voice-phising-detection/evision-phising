@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Summary</title>
+</head>
+<body>
+    <h1>업로드</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+
+    {% if files %}
+    <ul>
+        {% for file in files %}
+        <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if transcript %}
+    <h2>음성 - 텍스트 변환</h2>
+    <p>{{ transcript }}</p>
+    {% endif %}
+
+    {% if summary %}
+    <h2>요약본</h2>
+    <p>{{ summary }}</p>
+    {% endif %}
+</body>
+</html>
