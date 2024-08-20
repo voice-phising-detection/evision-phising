@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+        <!-- 앱에 필요한 선언
+            RECORD_AUDIO는 오디오를 녹음할 수 있는 권한. 통화 녹음 기능을 구현할 때 필요
+            READ_PHONE_STATE는 전화 상태를 읽을 수 있는 권한. 통화 상태를 확인하기 위해 필요
+            PROCESS_OUTGOING_CALLS는 발신 전화를 감지하는 권한, 발신 전화에 관련된 작업을 처리할 때 필요.
+            FOREGROUND_SERVICE는 앱이 포그라우드 서비스로 실행될 수 있도록 하는 권한, 포그라운드 서비스는 앱이 사용자와 상호작용하지 않을 때도 계속 실행될 수 있도록 함.
+            WRITE_EXTERNAL_STORAGE는 앱이 외부 저장소에 파일을 저장할 수 있도록 하는 권한.
+        -->
+        <uses-permission android:name="android.permission.RECORD_AUDIO" />
+        <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+        <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Evision_phising"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Evision_phising">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--통화 수신기 설정
+            CallReceiver는 통화상태를 감지하는 리시버.
+            android:name=".CallReceiver": CallReceiver 클래스가 통화 상태 변화를 감지
+            android:exported="true": 이 리시버가 다른 앱에 의해 호출될 수 있도록 설정
+            intent-filter: CallReceiver가 특정 인텐트를 수신할 수 있도록 합니다.
+android.intent.action.PHONE_STATE: 전화 상태가 변경될 때(예: 수신, 통화 중, 종료 등) 호출됩니다.
+android.intent.action.NEW_OUTGOING_CALL: 새로운 발신 전화가 시작될 때 호출됩니다.
+        -->
+        <receiver android:name=".CallReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
