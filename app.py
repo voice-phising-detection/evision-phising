@@ -10,9 +10,9 @@ from sentence_transformers import SentenceTransformer, util
 speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb7de447a76c2dd8ad0b9c18666339a130d19ab570efd4f881894b32c4'
 speech_secret = '7f66cefcbb5b442d842b2abe9bc67d9b'
 clova_studio_host = 'clovastudio.apigw.ntruss.com'
-clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiYxteJcS/tQtG1yQbbXdxii3loCK33bmD1iAr3WX+ViJz'
-clova_studio_api_key_primary_val = 'b6wvsrbh5Tz7FuRhCwHGuEDS46fPXrEp1KzWOgEh'
-request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
+clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiYxORD46fdq93MZs1ionCgPW+s/yAwY/t9SYBXFx8P55s'
+clova_studio_api_key_primary_val = 'goUuAWLNGd8AznR3MmZhfQW8BS1ZhlkXkPC5kgU4'
+request_id = 'bff6485b-a642-4596-8676-05d0cf9461dc'
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
