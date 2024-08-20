@@ -4,7 +4,8 @@ import http.client
 import requests
 from flask import Flask, request, render_template
 from pymongo import MongoClient
-from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # API 및 MongoDB 설정
 speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb7de447a76c2dd8ad0b9c18666339a130d19ab570efd4f881894b32c4'
@@ -17,7 +18,7 @@ request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
 app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
 
-mongo_uri = "mongodb+srv://admin:adminPW@atlascluster.a68jlym.mongodb.net/?retryWrites=true&w=majority"
+mongo_uri = "mongodb+srv://admin:adminPW@atlascluster.a68jlym.mongodb.net/?retryWrites=true&w=majority"      #수정필요!!
 client = MongoClient(mongo_uri)
 
 db = client.get_database('info')
@@ -26,9 +27,6 @@ correct_collection = db['compareDB']
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-
-# SBERT 모델 로드
-sbert_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
 
 class ClovaSpeechClient:
     def req_upload(self, file, completion='sync'):
@@ -77,14 +75,12 @@ class CompletionExecutor:
         else:
             return f"Error: {res['status']['message']}"
 
-def calculate_semantic_similarity(new_text, stored_texts):
-    # 새로운 텍스트와 기존 텍스트들을 임베딩
-    new_embedding = sbert_model.encode(new_text, convert_to_tensor=True)
-    stored_embeddings = sbert_model.encode(stored_texts, convert_to_tensor=True)
-
-    # 코사인 유사도 계산
-    cosine_scores = util.pytorch_cos_sim(new_embedding, stored_embeddings)
-    return cosine_scores
+def calculate_tfidf_cosine_similarity(new_text, stored_texts):
+    texts = stored_texts + [new_text]
+    vectorizer = TfidfVectorizer().fit_transform(texts)
+    vectors = vectorizer.toarray()
+    cosine_similarities = cosine_similarity(vectors[-1:], vectors[:-1])
+    return cosine_similarities[0]
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -139,10 +135,10 @@ def index():
         stored_texts = [doc['speech'] for doc in collection.find({"$where": "this.speech.length <= 2000"})]
         long_summaries = [doc['summary'] for doc in collection.find({"$where": "this.speech.length > 2000"})]
 
-        speech_similarity_scores = calculate_semantic_similarity(transcript, stored_texts)
-        summary_similarity_scores = calculate_semantic_similarity(summary, long_summaries)
+        speech_similarity_scores = calculate_tfidf_cosine_similarity(transcript, stored_texts)
+        summary_similarity_scores = calculate_tfidf_cosine_similarity(summary, long_summaries)
 
-        if speech_similarity_scores.max().item() >= 0.8 or summary_similarity_scores.max().item() >= 0.8:
+        if speech_similarity_scores.max() >= 0.8 or summary_similarity_scores.max() >= 0.8:
             matching_phone_number = False
             for correct_doc in correct_collection.find():
                 keywords = correct_doc['keyword']  # keyword가 배열 형태라고 가정
