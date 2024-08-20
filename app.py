@@ -11,7 +11,7 @@ speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb
 speech_secret = '7f66cefcbb5b442d842b2abe9bc67d9b'
 clova_studio_host = 'clovastudio.apigw.ntruss.com'
 clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiYxteJcS/tQtG1yQbbXdxii3loCK33bmD1iAr3WX+ViJz'
-api_key_primary_val = 'oOomQk0zHJQC3e2w56KZCDhv4EyQQrQAx0Q0YokN'
+clova_studio_api_key_primary_val = 'oOomQk0zHJQC3e2w56KZCDhv4EyQQrQAx0Q0YokN'
 request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
 
 app = Flask(__name__)
