@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload and Summary</title>
+    <title>파일 업로드 및 보이스 피싱 탐지</title>
 </head>
 <body>
-    <h1>업로드</h1>
+    <h1>파일 업로드 및 전화번호 입력</h1>
     <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
+        <label for="phone_number">전화번호:</label>
+        <input type="text" name="phone_number" required>
+        <br><br>
+        <input type="file" name="file" required>
+        <br><br>
         <input type="submit" value="Upload">
     </form>
-
-    {% if files %}
-    <ul>
-        {% for file in files %}
-        <li>{{ file }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
 
     {% if transcript %}
     <h2>음성 - 텍스트 변환</h2>
@@ -29,5 +25,16 @@
     <h2>요약본</h2>
     <p>{{ summary }}</p>
     {% endif %}
+
+    {% if warning %}
+    <h2 style="color:red;">{{ warning }}</h2>
+    {% endif %}
+
+    <h2>업로드된 파일 목록</h2>
+    <ul>
+        {% for file in files %}
+        <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
