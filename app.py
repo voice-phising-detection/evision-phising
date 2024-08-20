@@ -85,7 +85,7 @@ def calculate_tfidf_cosine_similarity(new_text, stored_texts):
 def index():
     transcript = None
     summary = None
-    warning_message = None
+    warning_message = ""
 
     if request.method == 'POST':
         if 'file' not in request.files or 'phone_number' not in request.form:
@@ -154,10 +154,8 @@ def index():
 
             # 데이터 저장
             if transcript and summary:
-                collection.insert_one({'speech': transcript, 'summary': summary, 'phone_number': phone_number})
+                collection.insert_one({'speech': transcript, 'summary': summary, 'phonenumber': phone_number})
 
-            if not matching_phone_number:
-                warning_message = "보이스 피싱일 확률이 높습니다!"
 
     uploaded_files = os.listdir(UPLOAD_FOLDER)
 
