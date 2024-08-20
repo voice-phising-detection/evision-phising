@@ -3,10 +3,9 @@ import json
 import http.client
 import requests
 from flask import Flask, request, render_template
-from dotenv import load_dotenv
+from pymongo import MongoClient
 
-load_dotenv()
-
+# API 및 MongoDB 설정
 speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb7de447a76c2dd8ad0b9c18666339a130d19ab570efd4f881894b32c4'
 speech_secret = '7f66cefcbb5b442d842b2abe9bc67d9b'
 clova_studio_host = 'clovastudio.apigw.ntruss.com'
@@ -16,6 +15,12 @@ request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
+
+mongo_uri = "mongodb+srv://admin:adminPW@atlascluster.a68jlym.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(mongo_uri)
+
+db = client.get_database('info')
+collection = db['profile']
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -30,11 +35,12 @@ class ClovaSpeechClient:
             'Accept': 'application/json;UTF-8',
             'X-CLOVASPEECH-API-KEY': speech_secret
         }
-        files = {
-            'media': open(file, 'rb'),
-            'params': (None, json.dumps(request_body, ensure_ascii=False).encode('UTF-8'), 'application/json')
-        }
-        response = requests.post(headers=headers, url=speech_invoke_url + '/recognizer/upload', files=files)
+        with open(file, 'rb') as f:
+            files = {
+                'media': f,
+                'params': (None, json.dumps(request_body, ensure_ascii=False).encode('UTF-8'), 'application/json')
+            }
+            response = requests.post(headers=headers, url=speech_invoke_url + '/recognizer/upload', files=files)
         return response
 
 class CompletionExecutor:
@@ -64,7 +70,7 @@ class CompletionExecutor:
         if res['status']['code'] == '20000':
             return res['result']['text']
         else:
-            return 'Error'
+            return f"Error: {res['status']['message']}"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -83,7 +89,12 @@ def index():
 
         client = ClovaSpeechClient()
         res = client.req_upload(file=file_path, completion='sync')
+        if res.status_code != 200:
+            return f"Speech API Error: {res.status_code} - {res.text}"
+
         result = res.json()
+        if 'segments' not in result:
+            return "Error: No segments found in response."
 
         segments = result.get('segments', [])
         transcript = " ".join([segment['text'] for segment in segments])
@@ -103,6 +114,9 @@ def index():
             "segMaxSize": 1000
         }
         summary = completion_executor.execute(request_data)
+        
+        if transcript and summary:
+            collection.insert_one({'speech': transcript, 'summary': summary})
 
     uploaded_files = os.listdir(UPLOAD_FOLDER)
 
