@@ -7,13 +7,12 @@ from pymongo import MongoClient
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# API 및 MongoDB 설정
-speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8858/30a1feeb7de447a76c2dd8ad0b9c18666339a130d19ab570efd4f881894b32c4'
-speech_secret = '7f66cefcbb5b442d842b2abe9bc67d9b'
+speech_invoke_url = 'https://clovaspeech-gw.ncloud.com/external/v1/8872/2b1a47e9d180934aa52d90f9747001aa9042f162473d37445cb105f1430d65be'
+speech_secret = 'd71d8c703cd6430eb388bce807bbe12a'
 clova_studio_host = 'clovastudio.apigw.ntruss.com'
-clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiYxteJcS/tQtG1yQbbXdxii3loCK33bmD1iAr3WX+ViJz'
-clova_studio_api_key_primary_val = 'oOomQk0zHJQC3e2w56KZCDhv4EyQQrQAx0Q0YokN'
-request_id = 'cb7e6561-3903-4d8a-b938-eb8da085be13'
+clova_studio_api_key = 'NTA0MjU2MWZlZTcxNDJiY0cpBRl68rxRwwm98a19OHQhCTwcyjvbi0rHHH/Wv9nu'
+clova_studio_api_key_primary_val = 'uEzhGyfgNc8ZQVEQASFNur74IYGBSWPEZzpcTE1S'
+request_id = 'f08c7257-7594-428e-9888-829df9f50d54'
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
@@ -21,7 +20,7 @@ UPLOAD_FOLDER = './uploads'
 mongo_uri = "mongodb+srv://admin:adminPW@atlascluster.a68jlym.mongodb.net/?retryWrites=true&w=majority"      #수정필요!!
 client = MongoClient(mongo_uri)
 
-db = client.get_database('info')
+db = client.get_database('compareDB')
 collection = db['profile']
 correct_collection = db['compareDB']
 
@@ -162,7 +161,11 @@ def index():
 
     uploaded_files = os.listdir(UPLOAD_FOLDER)
 
-    return render_template('index.html', transcript=transcript, summary=summary, files=uploaded_files, warning=warning_message)
+    return jsonify({
+        "transcript": transcript,
+        "summary": summary,
+        "warning_message": warning_message
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
