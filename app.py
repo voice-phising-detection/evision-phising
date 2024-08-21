@@ -81,7 +81,7 @@ def calculate_tfidf_cosine_similarity(new_text, stored_texts):
     cosine_similarities = cosine_similarity(vectors[-1:], vectors[:-1])
     return cosine_similarities[0]
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['POST'])
 def index():
     transcript = None
     summary = None
