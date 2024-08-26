@@ -1,2 +1,0 @@
-FCN 서버 키
-5bcfaa0f861d84a9b1060f999b5aa51fceee1b21
